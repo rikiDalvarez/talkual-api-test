@@ -1,0 +1,56 @@
+{
+  "name": "talkual-api-test",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "test": "jest --runInBand",
+    "test-coverage": "jest --runInBand --coverage=true"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1"
+  },
+  "dependencies": {
+    "@strapi/plugin-i18n": "4.14.0",
+    "@strapi/plugin-users-permissions": "4.14.0",
+    "@strapi/strapi": "4.14.0",
+    "better-sqlite3": "8.6.0",
+    "fs": "^0.0.1-security",
+    "lodash": "^4.17.21"
+  },
+  "author": {
+    "name": "A Strapi developer"
+  },
+  "strapi": {
+    "uuid": "72a30081-6092-4345-a142-1dc5432762aa"
+  },
+  "engines": {
+    "node": ">=16.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT",
+  "jest": {
+    "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "src/api/**/*.js"
+    ],
+    "coverageReporters": [
+      "clover",
+      "json",
+      "text"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      ".tmp",
+      ".cache"
+    ],
+    "testEnvironment": "node"
+  }
+}

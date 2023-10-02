@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_metas",
+  "info": {
+    "singularName": "order-meta",
+    "pluralName": "order-metas",
+    "displayName": "Order Meta",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "shipping_postcode": {
+      "type": "string",
+      "required": true
+    },
+    "shipping_firstname": {
+      "type": "string",
+      "required": true
+    },
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order",
+      "inversedBy": "order_meta"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+/**
+ * order controller
+ */
+
+import { factories } from '@strapi/strapi'
+import { isValidPostalCode } from '../services/coverageService'
+
+export default factories.createCoreController('api::order.order', ({ strapi }) => ({
+  async donate (ctx): Promise<any> {
+    try {
+      const sanitizedQueryParams = await this.sanitizeQuery(ctx);
+      const authenticatedUser = ctx.state.user;
+      const { order_meta } = ctx.request.body;
+      const order = await strapi.service('api::order.order').findOne(sanitizedQueryParams);
+
+      /***** Rest of the code here *****/
+
+      return {order, order_meta, authenticatedUser};
+    } catch (error) {
+      console.error('Error exporting orders', error);
+      return ctx.status = 500;
+    }
+  },
+}));
