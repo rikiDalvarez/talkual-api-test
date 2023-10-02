@@ -128,6 +128,7 @@ curl --location 'http://localhost:1337/api/orders/1/donate' \
 - Buenas prácticas de desarrollo de software en general.
 - Añadir tests de integración o unitarios al código.
 - Funcionamiento de la feature.
+- El uso que se hace de los commits para añadir los cambios.
 
 # Como arrancar el proyecto
 Use la versión LTS 18.18.0 de Node o la versión más actual.
@@ -138,6 +139,13 @@ Ejecute el siguiente comando para arrancar el proyecto en modo desarrollo:
 npm run develop
 # or
 yarn develop
+```
+
+Para ejecutar los tests, ejecute el comando:
+```
+npm run test
+# or
+yarn test
 ```
 
 # Como entregar la prueba
