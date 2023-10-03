@@ -11,7 +11,7 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
       const sanitizedQueryParams = await this.sanitizeQuery(ctx);
       const authenticatedUser = ctx.state.user;
       const { order_meta } = ctx.request.body;
-      const order = await strapi.service('api::order.order').findOne(sanitizedQueryParams);
+      const order = await strapi.service('api::order.order').findOne(sanitizedQueryParams, { populate: ['order_items', 'order_meta'] });
 
       /***** Rest of the code here *****/
 
