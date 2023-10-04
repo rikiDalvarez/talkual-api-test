@@ -136,6 +136,20 @@ curl --location 'http://localhost:1337/api/orders/1/donate' \
 Use la versión LTS 18.18.0 de Node o la versión más actual.
 Copia el fichero `.env.example` y crea uno nuevo que se llame `.env`
 
+Instalar dependencias:
+
+```bash
+# npm
+npm install
+
+# pnpm
+pnpm install
+
+# yarn
+yarn install
+
+```
+
 Ejecute el siguiente comando para arrancar el proyecto en modo desarrollo:
 ```
 npm run develop
