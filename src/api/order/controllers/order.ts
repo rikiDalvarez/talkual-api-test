@@ -29,8 +29,7 @@ export default factories.createCoreController(
 
         order.status = "cancelled";
 
-        console.log({ order });
-        console.log({ order_meta });
+        console.log({ authenticatedUser });
 
         //find pedido by id and update status to cancelled,
 
@@ -46,7 +45,8 @@ export default factories.createCoreController(
           data: {
             status: "processing",
             type: "donation",
-            // order_items: order.order_items,
+            order_items: order.order_items,
+            user: authenticatedUser.id,
             // order_meta: order.order_meta,
             // populate: ["order_items", "order_meta"],
           },
@@ -60,10 +60,50 @@ export default factories.createCoreController(
           },
         });
 
-        console.log(newOrderMeta);
+        const orderItemsToUpdate = await orderItemService.find({
+          order: updatedOrder.id,
+          populate: ["order", "order_meta"],
+        });
 
-        // const orders = await orderService.find({});
-        // console.log("orders", orders);
+        console.log("orderItemsToUpdate", orderItemsToUpdate.results);
+        for (const orderItem of orderItemsToUpdate.results) {
+          console.log(orderItem.id);
+          const newOrderItem = `${orderItem.sku}.old`;
+
+          const orderItemsToUpdated = await orderItemService.update(
+            orderItem.id,
+            {
+              data: {
+                sku: newOrderItem,
+              },
+            }
+          );
+        }
+        //   { order: test.id },
+        //   {
+        //     price: 0.06,
+        //   }
+        // );
+        // console.log({ updatedOrder });
+
+        // for (const orderItem of orderItemsToUpdate.results) {
+        //   orderItem.sku = `${orderItem.sku}.old`;
+        //   const id = orderItem.id;
+        //   console.log("orderItem", id, orderItem);
+        //   const updatetdOrderItem = await orderItemService.update(
+        //     orderItem.id,
+        //     {
+        //       sku: orderItem.sku,
+        //     }
+        //   );
+
+        //   // await orderItemService.create({
+        //   //   data: {
+        //   //     ...orderItem,
+        //   //     order: newOrderDonation.id,
+        //   //   },
+        //   // });
+        // }
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
           return "Código postal inválido";
