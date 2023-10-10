@@ -18,6 +18,8 @@ export default factories.createCoreController(
         const orderId = ctx.request.params.id;
 
         const orderService = strapi.service("api::order.order");
+        const orderMetaService = strapi.service("api::order-meta.order-meta");
+        const orderItemService = strapi.service("api::order-item.order-item");
 
         /***** Rest of the code here *****/
 
@@ -26,6 +28,9 @@ export default factories.createCoreController(
         });
 
         order.status = "cancelled";
+
+        console.log({ order });
+        console.log({ order_meta });
 
         //find pedido by id and update status to cancelled,
 
@@ -41,9 +46,21 @@ export default factories.createCoreController(
           data: {
             status: "processing",
             type: "donation",
+            // order_items: order.order_items,
+            // order_meta: order.order_meta,
+            // populate: ["order_items", "order_meta"],
           },
         });
         console.log(newOrderDonation);
+
+        const newOrderMeta = await orderMetaService.create({
+          data: {
+            ...order_meta,
+            order: newOrderDonation.id,
+          },
+        });
+
+        console.log(newOrderMeta);
 
         // const orders = await orderService.find({});
         // console.log("orders", orders);
@@ -51,8 +68,6 @@ export default factories.createCoreController(
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
           return "Código postal inválido";
         }
-
-        //create new pedido with status processing, type donation
 
         //create new orderMeta with data from request body  and link with new order
 
@@ -66,7 +81,6 @@ export default factories.createCoreController(
           order,
           order_meta,
           authenticatedUser,
-          sanitizedQueryParams,
         };
       } catch (error) {
         console.error("Error exporting orders", error);
