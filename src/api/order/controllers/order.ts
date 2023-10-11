@@ -29,8 +29,6 @@ export default factories.createCoreController(
 
         order.status = "cancelled";
 
-        console.log({ authenticatedUser });
-
         //find pedido by id and update status to cancelled,
 
         const updatedOrder = await orderService.update(orderId, {
@@ -39,19 +37,17 @@ export default factories.createCoreController(
           },
         });
 
+        console.log("updatedOrder:", updatedOrder.id);
+
         //create new pedido with status processing, type donation
 
         const newOrderDonation = await orderService.create({
           data: {
             status: "processing",
             type: "donation",
-            order_items: order.order_items,
             user: authenticatedUser.id,
-            // order_meta: order.order_meta,
-            // populate: ["order_items", "order_meta"],
           },
         });
-        console.log(newOrderDonation);
 
         const newOrderMeta = await orderMetaService.create({
           data: {
@@ -60,60 +56,51 @@ export default factories.createCoreController(
           },
         });
 
-        const orderItemsToUpdate = await orderItemService.find({
-          order: updatedOrder.id,
-          populate: ["order", "order_meta"],
+        const orderItemQuery = strapi.query("api::order-item.order-item");
+        console.log("newTest", orderItemQuery);
+
+        const orderItemTest = await orderItemQuery.findMany({
+          where: {
+            order: {
+              id: orderId,
+            },
+          },
         });
 
-        console.log("orderItemsToUpdate", orderItemsToUpdate.results);
-        for (const orderItem of orderItemsToUpdate.results) {
-          console.log(orderItem.id);
-          const newOrderItem = `${orderItem.sku}.old`;
+        console.log("test", orderItemTest);
 
-          const orderItemsToUpdated = await orderItemService.update(
-            orderItem.id,
-            {
+        // const orderItemsToUpdate = await orderItemQuery.findMany({
+        //   where: {
+        //     "order.id": orderId,
+        //   },
+        // });
+
+        // console.log("orderItemsToUpdate", orderItemsToUpdate);
+
+        const createBuilkOrderItems = async (list) => {
+          for (const orderItem of list) {
+            const newSku = Math.random().toString(36).substring(7);
+            const newOrderItem = await orderItemService.create({
               data: {
-                sku: newOrderItem,
+                quantity: orderItem.quantity,
+                sku: newSku,
+                order: newOrderDonation.id,
+                price: orderItem.price,
               },
-            }
-          );
-        }
-        //   { order: test.id },
-        //   {
-        //     price: 0.06,
-        //   }
-        // );
-        // console.log({ updatedOrder });
+            });
+          }
+        };
 
-        // for (const orderItem of orderItemsToUpdate.results) {
-        //   orderItem.sku = `${orderItem.sku}.old`;
-        //   const id = orderItem.id;
-        //   console.log("orderItem", id, orderItem);
-        //   const updatetdOrderItem = await orderItemService.update(
-        //     orderItem.id,
-        //     {
-        //       sku: orderItem.sku,
-        //     }
-        //   );
+        // const orderItemsToCreate = await orderItemService.find({
+        //   order: newOrderDonation.id,
+        //   populate: ["order", "order_meta"],
+        // });
 
-        //   // await orderItemService.create({
-        //   //   data: {
-        //   //     ...orderItem,
-        //   //     order: newOrderDonation.id,
-        //   //   },
-        //   // });
-        // }
+        await createBuilkOrderItems(orderItemTest);
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
           return "Código postal inválido";
         }
-
-        //create new orderMeta with data from request body  and link with new order
-
-        //create new orderItem link with new Order
-
-        //send confirmation email to user
 
         sendConfirmationEmail(order_meta.shipping_firstname);
 
