@@ -1,6 +1,8 @@
 /**
  * order controller
  */
+import { Request } from "koa";
+import { ErrorHandler } from "../../../errorHandler";
 
 import { factories } from "@strapi/strapi";
 import { isValidPostalCode } from "../services/coverageService";
@@ -14,26 +16,25 @@ export default factories.createCoreController(
         const sanitizedQueryParams = await this.sanitizeQuery(ctx);
 
         const authenticatedUser = ctx.state.user;
-        const { order_meta } = ctx.request.body;
-        const orderId = ctx.request.params.id;
+        const { order_meta } = (ctx.request as any).body;
+        const orderId = (ctx.request as any).params.id;
 
         if (!Number.isInteger(Number(orderId))) {
-          ctx.throw(400, "Invalid orderId. Please provide a valid order ID.");
-          // return "Invalid orderId. Please provide a valid order ID.";
+          const error = new ErrorHandler("bad_orderId");
+          throw error;
         }
 
         const orderService = strapi.service("api::order.order");
         const orderMetaService = strapi.service("api::order-meta.order-meta");
         const orderItemService = strapi.service("api::order-item.order-item");
 
-        /***** Rest of the code here *****/
-        //validar la id
-
         const order = await orderService.findOne(orderId, {
           populate: ["order_items", "order_meta"],
         });
 
-        order.status = "cancelled";
+        if (!order) {
+          ctx.throw(404, "Order not found");
+        }
 
         //find pedido by id and update status to cancelled,
 
@@ -43,8 +44,7 @@ export default factories.createCoreController(
           },
         });
 
-        console.log("updatedOrder:", updatedOrder.id);
-
+        console.log("updatedOrder", updatedOrder);
         //create new pedido with status processing, type donation
 
         const newOrderDonation = await orderService.create({
@@ -91,21 +91,22 @@ export default factories.createCoreController(
         await createBuilkOrderItems(orderItemList);
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
-          return "Código postal inválido";
+          ctx.throw("Código postal inválido");
         }
 
         sendConfirmationEmail(order_meta.shipping_firstname);
 
         return {
           order,
-          order_meta,
-          authenticatedUser,
         };
       } catch (error) {
-        console.error("Error exporting orders", error);
-        return (ctx.status = 500);
+        switch (error.name) {
+          case "bad_orderId":
+            ctx.throw(400, "Invalid orderId. Please provide a valid order ID.");
+        }
       }
     },
+
     async getOrders(ctx): Promise<any> {
       try {
         const sanitizedQueryParams = await this.sanitizeQuery(ctx);
