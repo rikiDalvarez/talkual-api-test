@@ -1,7 +1,6 @@
 /**
  * order controller
  */
-import { Request } from "koa";
 import { ErrorHandler } from "../../../errorHandler";
 import { donateOrder } from "../services/donateOrder";
 
@@ -41,7 +40,7 @@ export default factories.createCoreController(
             ctx.throw(400, "Código postal inválido");
             break;
           case "order_cancelled":
-            ctx.throw(400, "El pedido slecionado esta cancelado");
+            ctx.throw(400, "El pedido slecionado ya esta cancelado");
             break;
         }
       }
