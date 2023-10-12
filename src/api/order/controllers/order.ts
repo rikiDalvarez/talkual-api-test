@@ -33,7 +33,8 @@ export default factories.createCoreController(
         });
 
         if (!order) {
-          ctx.throw(404, "Order not found");
+          const error = new ErrorHandler("bad_orderId");
+          throw error;
         }
 
         //find pedido by id and update status to cancelled,
@@ -42,9 +43,10 @@ export default factories.createCoreController(
           data: {
             status: "cancelled",
           },
+          populate: ["order_items", "order_meta"],
         });
 
-        console.log("updatedOrder", updatedOrder);
+        console.log("updatedorder", updatedOrder);
         //create new pedido with status processing, type donation
 
         const newOrderDonation = await orderService.create({
@@ -63,7 +65,6 @@ export default factories.createCoreController(
         });
 
         const orderItemQuery = strapi.query("api::order-item.order-item");
-        console.log("newTest", orderItemQuery);
 
         const orderItemList = await orderItemQuery.findMany({
           where: {
@@ -91,18 +92,27 @@ export default factories.createCoreController(
         await createBuilkOrderItems(orderItemList);
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
-          ctx.throw("Código postal inválido");
+          const error = new ErrorHandler("bad_order_meta");
+          throw error;
         }
 
         sendConfirmationEmail(order_meta.shipping_firstname);
 
         return {
-          order,
+          order: newOrderDonation,
+          order_meta: {
+            shipping_postcode: newOrderMeta.shipping_postcode,
+            shipping_firstname: newOrderMeta.shipping_firstname,
+          },
         };
       } catch (error) {
         switch (error.name) {
           case "bad_orderId":
             ctx.throw(400, "Invalid orderId. Please provide a valid order ID.");
+            break;
+          case "bad_order_meta":
+            ctx.throw(400, "Código postal inválido");
+            break;
         }
       }
     },
