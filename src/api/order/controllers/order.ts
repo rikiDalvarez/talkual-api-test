@@ -17,11 +17,17 @@ export default factories.createCoreController(
         const { order_meta } = ctx.request.body;
         const orderId = ctx.request.params.id;
 
+        if (!Number.isInteger(Number(orderId))) {
+          ctx.throw(400, "Invalid orderId. Please provide a valid order ID.");
+          // return "Invalid orderId. Please provide a valid order ID.";
+        }
+
         const orderService = strapi.service("api::order.order");
         const orderMetaService = strapi.service("api::order-meta.order-meta");
         const orderItemService = strapi.service("api::order-item.order-item");
 
         /***** Rest of the code here *****/
+        //validar la id
 
         const order = await orderService.findOne(orderId, {
           populate: ["order_items", "order_meta"],
@@ -59,7 +65,7 @@ export default factories.createCoreController(
         const orderItemQuery = strapi.query("api::order-item.order-item");
         console.log("newTest", orderItemQuery);
 
-        const orderItemTest = await orderItemQuery.findMany({
+        const orderItemList = await orderItemQuery.findMany({
           where: {
             order: {
               id: orderId,
@@ -67,16 +73,7 @@ export default factories.createCoreController(
           },
         });
 
-        console.log("test", orderItemTest);
-
-        // const orderItemsToUpdate = await orderItemQuery.findMany({
-        //   where: {
-        //     "order.id": orderId,
-        //   },
-        // });
-
-        // console.log("orderItemsToUpdate", orderItemsToUpdate);
-
+        //funcion privada del servicio
         const createBuilkOrderItems = async (list) => {
           for (const orderItem of list) {
             const newSku = Math.random().toString(36).substring(7);
@@ -91,12 +88,7 @@ export default factories.createCoreController(
           }
         };
 
-        // const orderItemsToCreate = await orderItemService.find({
-        //   order: newOrderDonation.id,
-        //   populate: ["order", "order_meta"],
-        // });
-
-        await createBuilkOrderItems(orderItemTest);
+        await createBuilkOrderItems(orderItemList);
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
           return "Código postal inválido";
@@ -107,6 +99,30 @@ export default factories.createCoreController(
         return {
           order,
           order_meta,
+          authenticatedUser,
+        };
+      } catch (error) {
+        console.error("Error exporting orders", error);
+        return (ctx.status = 500);
+      }
+    },
+    async getOrders(ctx): Promise<any> {
+      try {
+        const sanitizedQueryParams = await this.sanitizeQuery(ctx);
+
+        const authenticatedUser = ctx.state.user;
+
+        const orderService = strapi.service("api::order.order");
+
+        const orders = await orderService.find({
+          where: {
+            user: authenticatedUser.id,
+          },
+          populate: ["order_items", "order_meta"],
+        });
+
+        return {
+          orders,
           authenticatedUser,
         };
       } catch (error) {
