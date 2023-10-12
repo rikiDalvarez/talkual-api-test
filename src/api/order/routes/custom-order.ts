@@ -5,10 +5,5 @@ export default {
       path: "/orders/:id/donate",
       handler: "order.donate",
     },
-    {
-      method: "GET",
-      path: "/orders/",
-      handler: "order.getOrders",
-    },
   ],
 };
