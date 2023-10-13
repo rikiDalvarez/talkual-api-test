@@ -1,6 +1,7 @@
 /**
  * order controller
  */
+import { Context } from "koa";
 import { ErrorHandler } from "../../../errorHandler";
 import { donateOrder } from "../services/donateOrder";
 
@@ -8,16 +9,28 @@ import { factories } from "@strapi/strapi";
 import { isValidPostalCode } from "../services/coverageService";
 import { sendConfirmationEmail } from "../services/confirmationEmail";
 
+interface IResult {
+  order: {
+    id: number;
+    status: string;
+    type: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  order_meta: {
+    shipping_postcode: string;
+    shipping_firstname: string;
+  };
+}
+
 export default factories.createCoreController(
   "api::order.order",
   ({ strapi }) => ({
-    async donate(ctx): Promise<any> {
+    async donate(ctx: Context): Promise<IResult> {
       try {
         const { order_meta } = (ctx.request as any).body;
         const orderId = (ctx.request as any).params.id;
 
-        //TODO Add order interface
-        //validation
         if (!Number.isInteger(Number(orderId))) {
           const error = new ErrorHandler("bad_orderId");
           throw error;
@@ -28,6 +41,7 @@ export default factories.createCoreController(
           throw error;
         }
         const result = await donateOrder(ctx);
+
         sendConfirmationEmail(order_meta.shipping_firstname);
 
         return result;

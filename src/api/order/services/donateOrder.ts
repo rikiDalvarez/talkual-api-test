@@ -16,6 +16,8 @@ export async function donateOrder(ctx) {
       populate: ["order_items", "order_meta"],
     });
 
+    console.log("order!!", order);
+
     if (!order) {
       const error = new ErrorHandler("bad_orderId");
       throw error;
