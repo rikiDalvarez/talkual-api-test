@@ -10,7 +10,6 @@ export async function donateOrder(ctx) {
   const { order_meta } = (ctx.request as any).body;
   const orderId = (ctx.request as any).params.id;
 
-  //TODO Add order interface
   try {
     const order = await orderService.findOne(orderId, {
       populate: ["order_items", "order_meta"],
