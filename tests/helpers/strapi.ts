@@ -114,7 +114,7 @@ export const grantPrivilege = async (
   const service = strapi.plugin("users-permissions").service("role");
 
   const role = await service.findOne(roleID);
-  console.log("role.permissions objecti", role.permissions);
+  console.log("role.permissions object", role.permissions);
   _.set(role.permissions, path, { enabled, policy });
 
   return service.updateRole(roleID, role);

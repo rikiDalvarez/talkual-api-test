@@ -41,18 +41,6 @@ También contiene un usuario con el que hacer el pedido desde el cliente:
 
 En la carpeta `tests`, tiene toda la configuración y un test de ejemplo usando `Jest` y `Supertest`.
 
-# Testing
-Para hacer los tests, se ha usado `Jest` y `Supertest`.
-Los test ejecutan en una base de datos tests.sqlite que se encuentra en la carpeta `tests` y se borra y se crea cada vez que se ejecuta un test.
-
-Para ejecutar los tests, ejecute el comando:
-
-```
-npm run test
-# or
-yarn test
-```
-
 ## Descripción de la prueba
 La prueba consiste en desarrollar en TypeScript la feature de donar un pedido ya creado, el punto de partida está en este controlador
 `src/api/order/controllers/order.ts`, en este archivo ya existe un código inicial que tienes que completar 
@@ -185,4 +173,15 @@ en github a luis.ramirez@talkualfoods.com `con el asunto` Prueba Api Talkual`
 En caso que cuando arranque el proyecto, no vea los datos generados en la base de datos SQlite,
 genere usted mismo los datos para hacer la prueba.
 
+# Testing la prueba realizada
+Para hacer los tests, se ha usado `Jest` y `Supertest`.
+Los test ejecutan en una base de datos tests.sqlite que se encuentra en la carpeta `tests` y se borra y se crea cada vez que se ejecuta un test.
+
+Para ejecutar los tests, ejecute el comando:
+
+```
+npm run test
+# or
+yarn test
+```
 
