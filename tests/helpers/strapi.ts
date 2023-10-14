@@ -107,14 +107,14 @@ export const jwt = (idOrEmail: IJwt) =>
  */
 export const grantPrivilege = async (
   roleID = 1,
-  path,
+  path: string,
   enabled = true,
   policy = ""
 ) => {
   const service = strapi.plugin("users-permissions").service("role");
 
   const role = await service.findOne(roleID);
-
+  console.log("role.permissions objecti", role.permissions);
   _.set(role.permissions, path, { enabled, policy });
 
   return service.updateRole(roleID, role);
