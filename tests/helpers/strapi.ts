@@ -6,6 +6,7 @@ import _ from "lodash";
 
 const strapiO = require("@strapi/strapi");
 
+// Strapi Object
 let instance;
 
 export const sleep = (milliseconds) => {
@@ -26,7 +27,9 @@ export const waitForServer = () =>
       }
     };
 
+    // TODO socket underfined
     const listenSocket = strapi.config.get("server.socket");
+    console.log("listenSocket", listenSocket);
 
     if (listenSocket) {
       // @ts-ignore
@@ -73,12 +76,12 @@ export async function stopStrapi() {
     const tmpDbFile = strapi.config.get(
       "database.connection.connection.filename"
     );
-
-    // @ts-ignore
-    if (fs.existsSync(tmpDbFile)) {
-      // @ts-ignore
-      fs.unlinkSync(tmpDbFile);
-    }
+    console.log("tmpDbFile", tmpDbFile);
+    // // @ts-ignore
+    // if (fs.existsSync(tmpDbFile)) {
+    //   // @ts-ignore
+    //   fs.unlinkSync(tmpDbFile);
+    // }
   }
   return instance;
 }

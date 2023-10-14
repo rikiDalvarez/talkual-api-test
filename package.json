@@ -8,7 +8,7 @@
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi",
-    "test": "jest --runInBand",
+    "test": "DATABASE_FILENAME=.tmp/test_data.db jest --runInBand",
     "test-coverage": "jest --runInBand --coverage=true"
   },
   "devDependencies": {

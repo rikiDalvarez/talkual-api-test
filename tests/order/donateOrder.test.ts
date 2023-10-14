@@ -1,7 +1,7 @@
 import { describe, beforeAll, afterAll, it, expect } from "@jest/globals";
 import request from "supertest";
-import { setupStrapi, stopStrapi, sleep } from "./helpers/strapi";
-import { createUser, defaultData, mockUserData } from "./user/factory";
+import { setupStrapi, stopStrapi, sleep } from "../helpers/strapi";
+import { createUser, defaultData, mockUserData } from "../user/factory";
 
 let user;
 let authToken;
