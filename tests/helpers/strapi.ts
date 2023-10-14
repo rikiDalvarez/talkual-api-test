@@ -87,7 +87,12 @@ export async function stopStrapi() {
  * Returns valid JWT token for authenticated
  * @param {String | number} idOrEmail, either user id, or email
  */
-export const jwt = (idOrEmail) =>
+interface IJwt {
+  id?: number;
+  email?: string;
+}
+
+export const jwt = (idOrEmail: IJwt) =>
   strapi.plugins["users-permissions"].services.jwt.issue({
     [Number.isInteger(idOrEmail) ? "id" : "email"]: idOrEmail,
   });
