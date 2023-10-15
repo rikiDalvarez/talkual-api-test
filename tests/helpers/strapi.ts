@@ -1,23 +1,19 @@
 import Strapi from "@strapi/strapi";
-// @ts-ignore
-import fs from "fs";
-// @ts-ignore
 import _ from "lodash";
-
-const strapiO = require("@strapi/strapi");
+console.log(typeof Strapi);
 
 // Strapi Object
 let instance;
 
-export const sleep = (milliseconds) => {
+export const sleep = (milliseconds: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-export const waitForServer = () =>
+export const waitForServer = async (): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    const onListen = async (error) => {
+    const onListen = async (error: Error) => {
       if (error) {
-        return reject(error);
+        reject(error);
       }
 
       try {
@@ -49,7 +45,7 @@ export async function setupStrapi() {
   if (!instance) {
     /** the follwing code in copied from `./node_modules/strapi/lib/Strapi.js` */
     try {
-      await strapiO.compile();
+      await Strapi.compile();
       await Strapi({
         appDir: process.cwd(),
         distDir: process.cwd() + "/dist",
@@ -76,7 +72,6 @@ export async function stopStrapi() {
     const tmpDbFile = strapi.config.get(
       "database.connection.connection.filename"
     );
-    console.log("tmpDbFile", tmpDbFile);
     // // @ts-ignore
     // if (fs.existsSync(tmpDbFile)) {
     //   // @ts-ignore
