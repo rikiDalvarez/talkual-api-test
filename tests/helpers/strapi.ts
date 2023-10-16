@@ -1,9 +1,8 @@
 import Strapi from "@strapi/strapi";
 import _ from "lodash";
-console.log(typeof Strapi);
 
 // Strapi Object
-let instance;
+let instance: any;
 
 export const sleep = (milliseconds: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -25,7 +24,6 @@ export const waitForServer = async (): Promise<boolean> =>
 
     // TODO socket underfined
     const listenSocket = strapi.config.get("server.socket");
-    console.log("listenSocket", listenSocket);
 
     if (listenSocket) {
       // @ts-ignore
@@ -69,9 +67,9 @@ export async function stopStrapi() {
   if (instance) {
     instance.destroy();
 
-    const tmpDbFile = strapi.config.get(
-      "database.connection.connection.filename"
-    );
+    // const tmpDbFile = strapi.config.get(
+    //   "database.connection.connection.filename"
+    // );
     // // @ts-ignore
     // if (fs.existsSync(tmpDbFile)) {
     //   // @ts-ignore

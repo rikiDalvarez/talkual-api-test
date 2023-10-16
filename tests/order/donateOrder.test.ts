@@ -2,9 +2,10 @@ import { describe, beforeAll, afterAll, it, expect } from "@jest/globals";
 import request from "supertest";
 import { setupStrapi, stopStrapi, sleep } from "../helpers/strapi";
 import { createUser, defaultData, mockUserData } from "../user/factory";
+import { IUser } from "../../types/types";
 
-let user;
-let authToken;
+let user: IUser;
+let authToken: string;
 
 /** this code is called once before any test is called */
 beforeAll(async () => {
@@ -16,47 +17,69 @@ afterAll(async () => {
   await stopStrapi();
 });
 
-describe("testing", () => {
+describe("testing strapi", () => {
   it("strapi is defined", () => {
     expect(strapi).toBeDefined();
   });
+});
 
-  describe("create order", () => {
-    beforeAll(async () => {
-      user = await createUser({});
-    });
+describe("create order", () => {
+  beforeAll(async () => {
+    user = await createUser({});
+    console.log({ user });
+  });
 
-    it("should login user and return jwt token", async () => {
-      const response = await request(strapi.server.httpServer)
-        .post("/api/auth/local")
-        .set("accept", "application/json")
-        .set("Content-Type", "application/json")
-        .send({
-          identifier: user.email,
-          password: defaultData.password,
-        })
-        .expect("Content-Type", /json/)
-        .expect(200);
+  it("should login user and return jwt token", async () => {
+    const response = await request(strapi.server.httpServer)
+      .post("/api/auth/local")
+      .set("accept", "application/json")
+      .set("Content-Type", "application/json")
+      .send({
+        identifier: user.email,
+        password: defaultData.password,
+      })
+      .expect("Content-Type", /json/)
+      .expect(200);
 
-      authToken = response.body.jwt;
-      console.log({ authToken });
+    authToken = response.body.jwt;
 
-      expect(authToken).toBeDefined();
-    });
+    expect(authToken).toBeDefined();
+  });
 
-    it("should create a new order using the authenticated user", async () => {
-      await request(strapi.server.httpServer)
-        .get("/api/orders")
-        .set("Content-Type", "application/json")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send({})
-        .expect(200);
-    });
+  it("should get a list of orders", async () => {
+    const response = await request(strapi.server.httpServer)
+      .get("/api/orders")
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
 
-    it("should create a user and create an order", async () => {});
+    console.log("orderList", response.body.data);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    if (response.body.data.length > 0) {
+      const order = response.body.data[0];
+      expect(order).toHaveProperty("id");
+      expect(order).toHaveProperty("attributes");
+    }
+  });
 
-    describe("donateOrder", () => {
-      it("should donate an order", async () => {});
-    });
+  it("should create a new order using the authenticated user", async () => {
+    await request(strapi.server.httpServer)
+      .post("/api/orders")
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        data: {
+          status: "processing",
+          user: 1,
+          type: "normal",
+        },
+      })
+      .expect(200);
+  });
+
+  it("should create a user and create an order", async () => {});
+
+  describe("donateOrder", () => {
+    it("should donate an order", async () => {});
   });
 });
