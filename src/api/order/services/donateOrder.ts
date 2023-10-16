@@ -1,6 +1,7 @@
 import { ErrorHandler } from "../../../errorHandler";
+import { Context } from "koa";
 
-export async function donateOrder(ctx) {
+export async function donateOrder(ctx: Context) {
   const orderItemQuery = strapi.query("api::order-item.order-item");
   const orderService = strapi.service("api::order.order");
   const orderMetaService = strapi.service("api::order-meta.order-meta");

@@ -17,16 +17,17 @@ afterAll(async () => {
   await stopStrapi();
 });
 
-describe("testing strapi", () => {
+describe("donateOrder", () => {
+  beforeAll(async () => {
+    user = await createUser({});
+  });
+
   it("strapi is defined", () => {
     expect(strapi).toBeDefined();
   });
-});
 
-describe("create order", () => {
-  beforeAll(async () => {
-    user = await createUser({});
-    console.log({ user });
+  it("user should be defined", () => {
+    expect(user).toBeDefined();
   });
 
   it("should login user and return jwt token", async () => {
@@ -46,6 +47,50 @@ describe("create order", () => {
     expect(authToken).toBeDefined();
   });
 
+  it("should donate an order", async () => {
+    //place order
+    const newOrder = await request(strapi.server.httpServer)
+      .post("/api/orders")
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        data: {
+          status: "processing",
+          user: 1,
+          type: "normal",
+        },
+      })
+      .expect(200);
+
+    expect(typeof newOrder.body.data.id).toBe("number");
+
+    const id = newOrder.body.data.id;
+
+    const donateOrder = await request(strapi.server.httpServer)
+      .post(`/api/orders/${id}/donate`)
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        order_meta: {
+          shipping_postcode: "25250",
+          shipping_firstname: "User 5",
+        },
+      })
+      .expect(200);
+
+    const orderList = await request(strapi.server.httpServer)
+      .get("/api/orders")
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .expect(200);
+
+    const lastOrder = orderList.body.data[orderList.body.data.length - 1];
+
+    expect(lastOrder.id).toBe(donateOrder.body.order.id);
+
+    //
+  });
+
   it("should get a list of orders", async () => {
     const response = await request(strapi.server.httpServer)
       .get("/api/orders")
@@ -53,7 +98,6 @@ describe("create order", () => {
       .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
-    console.log("orderList", response.body.data);
     expect(Array.isArray(response.body.data)).toBe(true);
     if (response.body.data.length > 0) {
       const order = response.body.data[0];
@@ -63,7 +107,7 @@ describe("create order", () => {
   });
 
   it("should create a new order using the authenticated user", async () => {
-    await request(strapi.server.httpServer)
+    const response = await request(strapi.server.httpServer)
       .post("/api/orders")
       .set("Content-Type", "application/json")
       .set("Authorization", `Bearer ${authToken}`)
@@ -77,9 +121,20 @@ describe("create order", () => {
       .expect(200);
   });
 
-  it("should create a user and create an order", async () => {});
-
-  describe("donateOrder", () => {
-    it("should donate an order", async () => {});
+  it("should create a user and create an order", async () => {
+    const userTest = await createUser({});
+    console.log({ userTest });
+    const orderTest = await request(strapi.server.httpServer)
+      .post("/api/orders")
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        data: {
+          status: "processing",
+          user: 1,
+          type: "normal",
+        },
+      })
+      .expect(200);
   });
 });

@@ -39,15 +39,11 @@ export const createUser = async (data) => {
     key: AUTHENTICATED_ROLE,
   });
 
-  console.log({ settings });
-
   const defaultRole = await strapi
     .query("plugin::users-permissions.role")
     .findOne({
       where: { type: settings ? settings.default_role : AUTHENTICATED_ROLE },
     });
-
-  console.log({ defaultRole });
 
   /** Creates a new user and push to database */
   return strapi
