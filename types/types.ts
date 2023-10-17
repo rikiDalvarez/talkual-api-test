@@ -19,3 +19,17 @@ export interface IUser {
     updatedAt: string;
   };
 }
+
+export interface Result {
+  order: {
+    id: number;
+    status: string;
+    type: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  order_meta: {
+    shipping_postcode: string;
+    shipping_firstname: string;
+  };
+}
