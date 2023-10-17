@@ -1,8 +1,8 @@
 import { ErrorHandler } from "../../../errorHandler";
 import { Context } from "koa";
+import { Order } from "../../../../types/types";
 
 export async function donateOrder(ctx: Context) {
-  const orderItemQuery = strapi.query("api::order-item.order-item");
   const orderService = strapi.service("api::order.order");
   const orderMetaService = strapi.service("api::order-meta.order-meta");
   const orderItemService = strapi.service("api::order-item.order-item");
@@ -49,44 +49,19 @@ export async function donateOrder(ctx: Context) {
       },
     });
 
-    const orderItemList = await orderItemQuery.findMany({
-      where: {
-        order: {
-          id: orderId,
+    const createOrderItem = async (order: Order): Promise<void> => {
+      const newSku = Math.random().toString(36).substring(7);
+      await orderItemService.create({
+        data: {
+          quantity: order.order_items[0].quantity,
+          sku: newSku,
+          order: newOrderDonation.id,
+          price: order.order_items[0].price,
         },
-      },
-    });
-
-    // const createOrderItem = async (order) => {
-    //   const newSku = Math.random().toString(36).substring(7);
-    //   console.log("orderin create")
-    //   const newOrderItem = await orderItemService.create({
-    //     data: {
-    //       quantity: order.order_item[0].quantity,
-    //       sku: newSku,
-    //       order: newOrderDonation.id,
-    //       price: order.order_item[0].price,
-    //     },
-    //   });
-    // };
-
-    const createBuilkOrderItems = async (list) => {
-      for (const orderItem of list) {
-        const newSku = Math.random().toString(36).substring(7);
-        const newOrderItem = await orderItemService.create({
-          data: {
-            quantity: orderItem.quantity,
-            sku: newSku,
-            order: newOrderDonation.id,
-            price: orderItem.price,
-          },
-        });
-      }
+      });
     };
 
-    // await createOrderItem(order);
-
-    await createBuilkOrderItems(orderItemList);
+    await createOrderItem(order);
 
     return {
       order: newOrderDonation,
