@@ -33,3 +33,26 @@ export interface Result {
     shipping_firstname: string;
   };
 }
+
+export interface Order {
+  id?: number;
+  status: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  order_items?: {
+    id: number;
+    quantity: number;
+    price: number;
+    createdAt: string;
+    updatedAt: string;
+    sku: string;
+  }[];
+  order_meta?: {
+    id: number;
+    shipping_postcode: string;
+    shipping_firstname: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}

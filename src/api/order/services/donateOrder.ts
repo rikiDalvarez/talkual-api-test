@@ -15,8 +15,7 @@ export async function donateOrder(ctx: Context) {
     const order = await orderService.findOne(orderId, {
       populate: ["order_items", "order_meta"],
     });
-
-    console.log("order!!", order);
+    console.log("order!", order);
 
     if (!order) {
       const error = new ErrorHandler("bad_orderId");
@@ -28,7 +27,7 @@ export async function donateOrder(ctx: Context) {
       throw error;
     }
 
-    const updatedOrder = await orderService.update(orderId, {
+    await orderService.update(orderId, {
       data: {
         status: "cancelled",
       },
@@ -58,6 +57,19 @@ export async function donateOrder(ctx: Context) {
       },
     });
 
+    // const createOrderItem = async (order) => {
+    //   const newSku = Math.random().toString(36).substring(7);
+    //   console.log("orderin create")
+    //   const newOrderItem = await orderItemService.create({
+    //     data: {
+    //       quantity: order.order_item[0].quantity,
+    //       sku: newSku,
+    //       order: newOrderDonation.id,
+    //       price: order.order_item[0].price,
+    //     },
+    //   });
+    // };
+
     const createBuilkOrderItems = async (list) => {
       for (const orderItem of list) {
         const newSku = Math.random().toString(36).substring(7);
@@ -71,6 +83,8 @@ export async function donateOrder(ctx: Context) {
         });
       }
     };
+
+    // await createOrderItem(order);
 
     await createBuilkOrderItems(orderItemList);
 
