@@ -172,3 +172,16 @@ en github a luis.ramirez@talkualfoods.com `con el asunto` Prueba Api Talkual`
 # Disclaimer
 En caso que cuando arranque el proyecto, no vea los datos generados en la base de datos SQlite,
 genere usted mismo los datos para hacer la prueba.
+
+# Testing la prueba realizada
+Para hacer los tests, se ha usado `Jest` y `Supertest`.
+Los test ejecutan en una base de datos tests.sqlite que se encuentra en la carpeta `tests` y se borra y se crea cada vez que se ejecuta un test.
+
+Para ejecutar los tests, ejecute el comando:
+
+```
+npm run test
+# or
+yarn test
+```
+

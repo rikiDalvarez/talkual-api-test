@@ -1,7 +1,8 @@
 import { ErrorHandler } from "../../../errorHandler";
+import { Context } from "koa";
+import { Order } from "../../../../types/types";
 
-export async function donateOrder(ctx) {
-  const orderItemQuery = strapi.query("api::order-item.order-item");
+export async function donateOrder(ctx: Context) {
   const orderService = strapi.service("api::order.order");
   const orderMetaService = strapi.service("api::order-meta.order-meta");
   const orderItemService = strapi.service("api::order-item.order-item");
@@ -14,8 +15,7 @@ export async function donateOrder(ctx) {
     const order = await orderService.findOne(orderId, {
       populate: ["order_items", "order_meta"],
     });
-
-    console.log("order!!", order);
+    console.log("order!", order);
 
     if (!order) {
       const error = new ErrorHandler("bad_orderId");
@@ -27,7 +27,7 @@ export async function donateOrder(ctx) {
       throw error;
     }
 
-    const updatedOrder = await orderService.update(orderId, {
+    await orderService.update(orderId, {
       data: {
         status: "cancelled",
       },
@@ -49,29 +49,19 @@ export async function donateOrder(ctx) {
       },
     });
 
-    const orderItemList = await orderItemQuery.findMany({
-      where: {
-        order: {
-          id: orderId,
+    const createOrderItem = async (order: Order): Promise<void> => {
+      const newSku = Math.random().toString(36).substring(7);
+      await orderItemService.create({
+        data: {
+          quantity: order.order_items[0].quantity,
+          sku: newSku,
+          order: newOrderDonation.id,
+          price: order.order_items[0].price,
         },
-      },
-    });
-
-    const createBuilkOrderItems = async (list) => {
-      for (const orderItem of list) {
-        const newSku = Math.random().toString(36).substring(7);
-        const newOrderItem = await orderItemService.create({
-          data: {
-            quantity: orderItem.quantity,
-            sku: newSku,
-            order: newOrderDonation.id,
-            price: orderItem.price,
-          },
-        });
-      }
+      });
     };
 
-    await createBuilkOrderItems(orderItemList);
+    await createOrderItem(order);
 
     return {
       order: newOrderDonation,

@@ -1,22 +1,18 @@
 import Strapi from "@strapi/strapi";
-// @ts-ignore
-import fs from "fs";
-// @ts-ignore
 import _ from "lodash";
 
-const strapiO = require("@strapi/strapi");
+// Strapi Object
+let instance: any;
 
-let instance;
-
-export const sleep = (milliseconds) => {
+export const sleep = (milliseconds: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-export const waitForServer = () =>
+export const waitForServer = async (): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    const onListen = async (error) => {
+    const onListen = async (error: Error) => {
       if (error) {
-        return reject(error);
+        reject(error);
       }
 
       try {
@@ -26,6 +22,7 @@ export const waitForServer = () =>
       }
     };
 
+    // TODO socket underfined
     const listenSocket = strapi.config.get("server.socket");
 
     if (listenSocket) {
@@ -46,7 +43,7 @@ export async function setupStrapi() {
   if (!instance) {
     /** the follwing code in copied from `./node_modules/strapi/lib/Strapi.js` */
     try {
-      await strapiO.compile();
+      await Strapi.compile();
       await Strapi({
         appDir: process.cwd(),
         distDir: process.cwd() + "/dist",
@@ -70,15 +67,14 @@ export async function stopStrapi() {
   if (instance) {
     instance.destroy();
 
-    const tmpDbFile = strapi.config.get(
-      "database.connection.connection.filename"
-    );
-
-    // @ts-ignore
-    if (fs.existsSync(tmpDbFile)) {
-      // @ts-ignore
-      fs.unlinkSync(tmpDbFile);
-    }
+    // const tmpDbFile = strapi.config.get(
+    //   "database.connection.connection.filename"
+    // );
+    // // @ts-ignore
+    // if (fs.existsSync(tmpDbFile)) {
+    //   // @ts-ignore
+    //   fs.unlinkSync(tmpDbFile);
+    // }
   }
   return instance;
 }
@@ -87,7 +83,12 @@ export async function stopStrapi() {
  * Returns valid JWT token for authenticated
  * @param {String | number} idOrEmail, either user id, or email
  */
-export const jwt = (idOrEmail) =>
+interface IJwt {
+  id?: number;
+  email?: string;
+}
+
+export const jwt = (idOrEmail: IJwt) =>
   strapi.plugins["users-permissions"].services.jwt.issue({
     [Number.isInteger(idOrEmail) ? "id" : "email"]: idOrEmail,
   });
@@ -102,14 +103,14 @@ export const jwt = (idOrEmail) =>
  */
 export const grantPrivilege = async (
   roleID = 1,
-  path,
+  path: string,
   enabled = true,
   policy = ""
 ) => {
   const service = strapi.plugin("users-permissions").service("role");
 
   const role = await service.findOne(roleID);
-
+  console.log("role.permissions object", role.permissions);
   _.set(role.permissions, path, { enabled, policy });
 
   return service.updateRole(roleID, role);
