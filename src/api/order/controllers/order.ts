@@ -19,13 +19,11 @@ export default factories.createCoreController(
         const orderId = (ctx.request as any).params.id;
 
         if (!Number.isInteger(Number(orderId))) {
-          const error = new ErrorHandler("bad_orderId");
-          throw error;
+          throw new ErrorHandler("bad_orderId");
         }
 
         if (!isValidPostalCode(order_meta.shipping_postcode)) {
-          const error = new ErrorHandler("bad_order_meta");
-          throw error;
+          throw new ErrorHandler("bad_order_meta");
         }
         const result = await donateOrder(ctx);
 
